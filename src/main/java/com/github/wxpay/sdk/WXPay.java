@@ -40,15 +40,19 @@ public class WXPay {
      * @throws Exception
      */
     public Map<String, String> fillRequestData(Map<String, String> reqData) throws Exception {
-        reqData.put("appid", config.getAppID());
-        reqData.put("mch_id", config.getMchID());
+        if (!reqData.containsKey("mch_appid")) {
+            reqData.put("appid", config.getAppID());
+            reqData.put("mch_id", config.getMchID());
+            if (SignType.MD5.equals(this.signType)) {
+                reqData.put("sign_type", WXPayConstants.MD5);
+            }
+            else if (SignType.HMACSHA256.equals(this.signType)) {
+                reqData.put("sign_type", WXPayConstants.HMACSHA256);
+            }
+        }
+
         reqData.put("nonce_str", WXPayUtil.generateNonceStr());
-        if (SignType.MD5.equals(this.signType)) {
-            reqData.put("sign_type", WXPayConstants.MD5);
-        }
-        else if (SignType.HMACSHA256.equals(this.signType)) {
-            reqData.put("sign_type", WXPayConstants.HMACSHA256);
-        }
+
         reqData.put("sign", WXPayUtil.generateSignature(reqData, config.getKey(), this.signType));
         return reqData;
     }
@@ -269,10 +273,9 @@ public class WXPay {
             return respData;
         }
         else if (return_code.equals(WXPayConstants.SUCCESS)) {
-           if (this.isResponseSignatureValid(respData)) {
+           if (this.isResponseSignatureValid(respData) || respData.containsKey("mchid")) {
                return respData;
-           }
-           else {
+           } else {
                throw new Exception(String.format("Invalid sign value in XML: %s", xmlStr));
            }
         }
@@ -668,5 +671,38 @@ public class WXPay {
         return this.processResponseXml(respXml);
     }
 
+    /**
+     * 作用：企业付款到零钱<br>
+     * 场景：企业付款
+     *
+     * @param reqData 向wxpay post的请求数据
+     * @return API返回数据
+     * @throws Exception
+     */
+    public Map<String, String> transfer(Map<String, String> reqData) throws Exception {
+        return this.transfer(reqData, this.config.getHttpConnectTimeoutMs(), this.config.getHttpReadTimeoutMs());
+    }
 
+
+    /**
+     * 作用：企业付款到零钱<br>
+     * 场景：企业付款
+     * 其他：需要证书
+     *
+     * @param reqData          向wxpay post的请求数据
+     * @param connectTimeoutMs 连接超时时间，单位是毫秒
+     * @param readTimeoutMs    读超时时间，单位是毫秒
+     * @return API返回数据
+     * @throws Exception
+     */
+    public Map<String, String> transfer(Map<String, String> reqData, int connectTimeoutMs, int readTimeoutMs) throws Exception {
+        String url;
+        if (this.useSandbox) {
+            url = WXPayConstants.SANDBOX_TRANSFER_URL;
+        } else {
+            url = WXPayConstants.TRANSFER_URL;
+        }
+        String respXml = this.requestWithCert(url, this.fillRequestData(reqData), connectTimeoutMs, readTimeoutMs);
+        return this.processResponseXml(respXml);
+    }
 } // end class

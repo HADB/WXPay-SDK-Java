@@ -28,6 +28,7 @@ public class WXPayConstants {
     public static final String REPORT_URL       = "https://api.mch.weixin.qq.com/payitil/report";
     public static final String SHORTURL_URL     = "https://api.mch.weixin.qq.com/tools/shorturl";
     public static final String AUTHCODETOOPENID_URL = "https://api.mch.weixin.qq.com/tools/authcodetoopenid";
+    public static final String TRANSFER_URL     = "https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers";
 
     // sandbox
     public static final String SANDBOX_MICROPAY_URL     = "https://api.mch.weixin.qq.com/sandboxnew/pay/micropay";
@@ -41,5 +42,6 @@ public class WXPayConstants {
     public static final String SANDBOX_REPORT_URL       = "https://api.mch.weixin.qq.com/sandboxnew/payitil/report";
     public static final String SANDBOX_SHORTURL_URL     = "https://api.mch.weixin.qq.com/sandboxnew/tools/shorturl";
     public static final String SANDBOX_AUTHCODETOOPENID_URL = "https://api.mch.weixin.qq.com/sandboxnew/tools/authcodetoopenid";
+    public static final String SANDBOX_TRANSFER_URL     = "https://api.mch.weixin.qq.com/sandboxnew/mmpaymkttransfers/promotion/transfers";
 
 }
